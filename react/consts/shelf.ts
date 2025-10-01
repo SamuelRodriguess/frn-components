@@ -1,0 +1,3 @@
+export const DEFAULT_MAX_ITEMS = 8
+export const SKU_INITIAL = 'FIRST_AVAILABLE'
+export const DEFAULT_PROMOTION_ID = '9a462676-3b57-4c89-bb3f-9992c9ccfdb7'
