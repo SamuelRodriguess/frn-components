@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useQuery } from 'react-apollo'
 import { Product } from 'vtex.product-context/react/ProductTypes'
 import { ProductTypes } from 'vtex.product-context'
 import { ExtensionPoint } from 'vtex.render-runtime'
 import { IFacets } from 'frn.promotions'
 
+import styles from './productList.module.css'
 import PromotionsShelfQuery from '../../graphql/PromotionsShelf.graphql'
 import {
   getFacetFromPromotions,
@@ -12,6 +13,7 @@ import {
   NormalizedProductSummary,
   PreferenceType,
 } from '../../utils'
+import { ITEMS_PER_PAGE } from '../../consts/shelf'
 
 interface ProductListProps {
   facets: IFacets
@@ -26,6 +28,11 @@ const ProductList = ({
   hideUnavailableItems,
   preferredSKU,
 }: ProductListProps) => {
+  const [currentPage, setCurrentPage] = useState(0)
+  const [visibleProducts, setVisibleProducts] = useState<
+    NormalizedProductSummary[]
+  >([])
+
   const selectedFacets = useMemo(
     () => getFacetFromPromotions(facets, facets.type),
     [facets]
@@ -51,8 +58,33 @@ const ProductList = ({
           preferredSKU
         )
       )
-      .filter((summary) => Boolean(summary))
+      .filter((summary) => Boolean(summary)) as NormalizedProductSummary[]
   }, [data, preferredSKU])
+
+  const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE)
+
+  useEffect(() => {
+    const startIndex = currentPage * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+
+    setVisibleProducts(allProducts.slice(startIndex, endIndex))
+  }, [currentPage, allProducts])
+
+  const handlePrev = () => {
+    const isAfterFirstPage = currentPage > 0
+
+    if (isAfterFirstPage) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  const handleNext = () => {
+    const isBeforeLastPage = currentPage < totalPages - 1
+
+    if (isBeforeLastPage) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
 
   if (!allProducts || loading || error || !allProducts.length) {
     return (
@@ -63,15 +95,35 @@ const ProductList = ({
   }
 
   return (
-    <section className="flex">
-      {allProducts.map((product: NormalizedProductSummary, index: number) => (
-        <ExtensionPoint
-          id="product-summary"
-          key={product.cacheId ?? product.productId ?? index}
-          product={product}
-          listName="PromotionsShelf"
-        />
-      ))}
+    <section
+      className={`relative flex flex-row items-center ${styles.productListSection}`}
+    >
+      <button
+        onClick={handlePrev}
+        disabled={currentPage === 0}
+        aria-label="Produtos anteriores"
+        className={`${styles.arrowButtonBaseStyles} ${styles.productArrowLeft}`}
+      >
+        &#8592;
+      </button>
+      <div className={`${styles.productListCard}`}>
+        {visibleProducts.map((product, index) => (
+          <ExtensionPoint
+            id="product-summary"
+            key={product.cacheId ?? product.productId ?? index}
+            product={product}
+            listName="PromotionsShelf"
+          />
+        ))}
+      </div>
+      <button
+        onClick={handleNext}
+        disabled={currentPage === totalPages - 1}
+        aria-label="Próximos produtos"
+        className={`${styles.arrowButtonBaseStyles} ${styles.productArrowRight}`}
+      >
+        &#8594;
+      </button>
     </section>
   )
 }
