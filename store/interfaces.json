@@ -1,0 +1,6 @@
+{
+  "custom-promotions-shelf": {
+    "component": "PromotionsShelf",
+    "allowed": ["product-summary"]
+  }
+}

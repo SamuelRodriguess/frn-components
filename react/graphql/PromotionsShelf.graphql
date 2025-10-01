@@ -1,0 +1,41 @@
+query PromotionsShelf(
+  $from: Int!
+  $to: Int!
+  $selectedFacets: [SelectedFacetInput!]
+  $hideUnavailableItems: Boolean = true
+) {
+  productSearch(
+    from: $from
+    to: $to
+    selectedFacets: $selectedFacets
+    hideUnavailableItems: $hideUnavailableItems
+  ) @context(provider: "vtex.search-graphql") {
+    products {
+      cacheId
+      productId
+      productName
+      linkText
+      brand
+      items {
+        itemId
+        name
+        images {
+          cacheId
+          imageId
+          imageLabel
+          imageTag
+          imageUrl
+          imageText
+        }
+        sellers {
+          sellerId
+          commertialOffer {
+            AvailableQuantity
+            Price
+            ListPrice
+          }
+        }
+      }
+    }
+  }
+}
