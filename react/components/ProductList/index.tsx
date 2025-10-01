@@ -45,7 +45,7 @@ const ProductList = ({
     const productsData: Product[] = data?.productSearch?.products ?? []
 
     return productsData
-      .map((product: Product) =>
+      ?.map((product: Product) =>
         mapCatalogProductToProductSummary(
           (product as unknown) as ProductTypes.Product,
           preferredSKU
