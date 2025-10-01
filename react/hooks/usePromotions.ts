@@ -1,20 +1,16 @@
 import { useEffect, useState } from 'react'
 import type { PromotionId, PromotionList } from 'frn.promotions'
 
-import { DEFAULT_PROMOTION_ID } from '../consts/shelf'
-
 const PROMOTIONS_ENDPOINT = '/_v/custom-promotions/'
 
 interface UsePromotionsResponse {
-  promotions: PromotionList | null
+  promotions: PromotionList | []
   loading: boolean
   error: Error | null
 }
 
-export function usePromotions(
-  promotionId: PromotionId = DEFAULT_PROMOTION_ID
-): UsePromotionsResponse {
-  const [promotions, setPromotions] = useState<PromotionList | null>(null)
+export function usePromotions(promotionId: PromotionId): UsePromotionsResponse {
+  const [promotions, setPromotions] = useState<PromotionList | []>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -24,11 +20,10 @@ export function usePromotions(
     async function fetchPromotions() {
       setLoading(true)
       setError(null)
+      const params = promotionId ? `?id=${encodeURIComponent(promotionId)}` : ''
 
       try {
-        const response = await fetch(
-          `${PROMOTIONS_ENDPOINT}?id=${encodeURIComponent(promotionId)}`
-        )
+        const response = await fetch(`${PROMOTIONS_ENDPOINT}${params}`)
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

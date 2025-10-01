@@ -1,24 +1,13 @@
-import React, { useMemo } from 'react'
-import { useQuery } from 'react-apollo'
-import { ExtensionPoint } from 'vtex.render-runtime'
-import { ProductTypes } from 'vtex.product-context'
+import React from 'react'
 
-import PromotionsShelfQuery from '../../graphql/PromotionsShelf.graphql'
 import { usePromotions } from '../../hooks/usePromotions'
-import {
-  NormalizedProductSummary,
-  PreferenceType,
-  mapCatalogProductToProductSummary,
-  getFacetFromPromotions,
-  getPromotionName,
-  buildSelectedFacets,
-} from '../../utils'
+import { PreferenceType, promotionParser } from '../../utils'
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_PROMOTION_ID,
   SKU_INITIAL,
 } from '../../consts/shelf'
-import { Product } from '../../typings/products'
+import ProductList from '../ProductList'
 
 interface PromotionsShelfProps {
   id?: string
@@ -32,12 +21,10 @@ interface PromotionsShelfProps {
 
 const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
   id,
-  categoryId,
-  sellerId,
   maxItems = DEFAULT_MAX_ITEMS,
   preferredSKU = SKU_INITIAL,
   hideUnavailableItems = true,
-  promotionId,
+  promotionId = '',
 }: PromotionsShelfProps) => {
   const {
     promotions,
@@ -45,68 +32,28 @@ const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
     error: promotionsError,
   } = usePromotions(promotionId)
 
-  const promotionName = useMemo(() => getPromotionName(promotions), [
-    promotions,
-  ])
+  const allPromotions = promotionParser(promotions)
 
-  const baseFacet = useMemo(() => getFacetFromPromotions(promotions), [
-    promotions,
-  ])
-
-  const selectedFacets = useMemo(
-    () => buildSelectedFacets(baseFacet, sellerId, categoryId),
-    [baseFacet, categoryId, sellerId]
-  )
-
-  const { data, loading, error } = useQuery(PromotionsShelfQuery, {
-    skip: selectedFacets.length === 0,
-    variables: {
-      from: 0,
-      to: maxItems - 1,
-      hideUnavailableItems,
-      selectedFacets,
-    },
-  })
-
-  const products = useMemo(() => {
-    const productsData: Product[] = data?.productSearch?.products ?? []
-
-    return productsData
-      .map((product: Product) =>
-        mapCatalogProductToProductSummary(
-          (product as unknown) as ProductTypes.Product,
-          preferredSKU
-        )
-      )
-      .filter((summary) => Boolean(summary))
-  }, [data, preferredSKU])
-
-  if (promotionsError || error || promotionsLoading || loading) {
+  if (promotionsError || promotionsLoading || !allPromotions.length) {
     return <div className="frn-shelf-promotions__loading">Carregando...</div>
-  }
-
-  if (!products || products.length === 0) {
-    return (
-      <div className="frn-shelf-promotions__empty">
-        Nenhum produto encontrado
-      </div>
-    )
   }
 
   return (
     <div id={id} className="frn-shelf-promotions">
-      {promotionName && <h2>{promotionName}</h2>}
-
-      <section className="flex">
-        {products.map((product: NormalizedProductSummary, index: number) => (
-          <ExtensionPoint
-            id="product-summary"
-            key={product.cacheId ?? product.productId ?? index}
-            product={product}
-            listName="PromotionsShelf"
-          />
-        ))}
-      </section>
+      {allPromotions?.map((facets, idx) => {
+        return (
+          <>
+            <h2>{facets.name}</h2>
+            <ProductList
+              key={idx}
+              facets={facets}
+              maxItems={maxItems}
+              hideUnavailableItems={hideUnavailableItems}
+              preferredSKU={preferredSKU}
+            />
+          </>
+        )
+      })}
     </div>
   )
 }
