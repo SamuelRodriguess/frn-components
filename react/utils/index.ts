@@ -1,2 +1,3 @@
 export * from './normalize'
-export * from './promotions'
+export * from './getFacetFromPromotions'
+export * from './promotionsParser'
