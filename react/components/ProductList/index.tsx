@@ -1,11 +1,13 @@
+import './styles/product-list.css'
 import React, { useMemo, useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { Product } from 'vtex.product-context/react/ProductTypes'
 import { ProductTypes } from 'vtex.product-context'
 import { ExtensionPoint } from 'vtex.render-runtime'
+import { useCssHandles } from 'vtex.css-handles'
 import { IFacets } from 'frn.promotions'
+import { useDevice } from 'vtex.device-detector'
 
-import styles from './productList.module.css'
 import PromotionsShelfQuery from '../../graphql/PromotionsShelf.graphql'
 import {
   getFacetFromPromotions,
@@ -14,6 +16,17 @@ import {
   PreferenceType,
 } from '../../utils'
 import { ITEMS_PER_PAGE } from '../../consts/shelf'
+
+const CSS_HANDLES = [
+  'productListSection',
+  'productListContainer',
+  'productListCarousel',
+  'productListArrowButton',
+  'productListArrowLeft',
+  'productListArrowRight',
+  'productListEmptyState',
+  'productListItem',
+] as const
 
 interface ProductListProps {
   facets: IFacets
@@ -28,7 +41,9 @@ const ProductList = ({
   hideUnavailableItems,
   preferredSKU,
 }: ProductListProps) => {
+  const { handles: cssHandles } = useCssHandles(CSS_HANDLES)
   const [currentPage, setCurrentPage] = useState(0)
+  const { isMobile } = useDevice()
 
   const selectedFacets = useMemo(
     () => getFacetFromPromotions(facets, facets.type),
@@ -58,13 +73,15 @@ const ProductList = ({
       .filter(Boolean) as NormalizedProductSummary[]
   }, [data, preferredSKU])
 
-  const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE)
+  const quantityItems = isMobile ? allProducts.length : ITEMS_PER_PAGE
+
+  const totalPages = Math.ceil(allProducts.length / quantityItems)
 
   const visibleProducts = useMemo(() => {
-    const start = currentPage * ITEMS_PER_PAGE
+    const start = currentPage * quantityItems
 
-    return allProducts.slice(start, start + ITEMS_PER_PAGE)
-  }, [currentPage, allProducts])
+    return allProducts.slice(start, start + quantityItems)
+  }, [currentPage, quantityItems, allProducts])
 
   const handlePrev = () => {
     const isAfterFirstPage = currentPage > 0
@@ -84,7 +101,9 @@ const ProductList = ({
 
   if (loading || error || !allProducts.length) {
     return (
-      <div className="frn-shelf-promotions__empty">
+      <div
+        className={`${cssHandles.productListEmptyState} frn-shelf-promotions__empty`}
+      >
         Nenhum produto encontrado
       </div>
     )
@@ -92,34 +111,43 @@ const ProductList = ({
 
   return (
     <section
-      className={`relative flex flex-row items-center ${styles.productListSection}`}
+      className={`relative flex flex-row items-center ${cssHandles.productListContainer}`}
     >
-      <button
-        onClick={handlePrev}
-        disabled={currentPage === 0}
-        aria-label="Produtos anteriores"
-        className={`${styles.arrowButtonBaseStyles} ${styles.productArrowLeft}`}
-      >
-        &#8592;
-      </button>
-      <div className={styles.productListCard}>
+      <div className={`shadow-lg ${cssHandles.productListArrowButton}`}>
+        <button
+          onClick={handlePrev}
+          disabled={currentPage === 0}
+          aria-label="Produtos anteriores"
+          className={`${cssHandles.productListArrowLeft}`}
+        >
+          &#8592;
+        </button>
+      </div>
+
+      <div className={`${cssHandles.productListCarousel}`}>
         {visibleProducts.map((product, index) => (
-          <ExtensionPoint
-            id="product-summary"
+          <div
+            className={cssHandles.productListItem}
             key={product.cacheId ?? product.productId ?? index}
-            product={product}
-            listName="PromotionsShelf"
-          />
+          >
+            <ExtensionPoint
+              id="product-summary"
+              product={product}
+              listName="PromotionsShelf"
+            />
+          </div>
         ))}
       </div>
-      <button
-        onClick={handleNext}
-        disabled={currentPage === totalPages - 1}
-        aria-label="Próximos produtos"
-        className={`${styles.arrowButtonBaseStyles} ${styles.productArrowRight}`}
-      >
-        &#8594;
-      </button>
+      <div className={`shadow-lg ${cssHandles.productListArrowButton}`}>
+        <button
+          onClick={handleNext}
+          disabled={currentPage === totalPages - 1}
+          aria-label="Próximos produtos"
+          className={`${cssHandles.productListArrowRight}`}
+        >
+          &#8594;
+        </button>
+      </div>
     </section>
   )
 }

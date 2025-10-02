@@ -1,4 +1,6 @@
+import './styles/promotions-shelf.css'
 import React from 'react'
+import { useCssHandles } from 'vtex.css-handles'
 
 import { usePromotions } from '../../hooks/usePromotions'
 import { PreferenceType, promotionParser } from '../../utils'
@@ -8,6 +10,13 @@ import {
   SKU_INITIAL,
 } from '../../consts/shelf'
 import ProductList from '../ProductList'
+
+const CSS_HANDLES = [
+  'promotionsShelf',
+  'promotionsShelfLoading',
+  'promotionsShelfGroup',
+  'promotionsShelfTitle',
+] as const
 
 interface PromotionsShelfProps {
   id?: string
@@ -26,6 +35,7 @@ const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
   hideUnavailableItems = true,
   promotionId = '',
 }: PromotionsShelfProps) => {
+  const { handles: cssHandles } = useCssHandles(CSS_HANDLES)
   const {
     promotions,
     loading: promotionsLoading,
@@ -35,23 +45,33 @@ const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
   const allPromotions = promotionParser(promotions)
 
   if (promotionsError || promotionsLoading || !allPromotions.length) {
-    return <div className="frn-shelf-promotions__loading">Carregando...</div>
+    return (
+      <div className={`${cssHandles.promotionsShelfLoading}`}>
+        Carregando...
+      </div>
+    )
   }
 
   return (
-    <div id={id} className="frn-shelf-promotions">
+    <div id={id} className={`${cssHandles.promotionsShelf}`}>
       {allPromotions?.map((facets, idx) => {
+        const promotionKey = facets?.id ?? facets?.name ?? idx
+        const promotionName = facets?.name ?? ''
+
         return (
-          <>
-            <h2>{facets.name}</h2>
+          <div key={promotionKey} className={cssHandles.promotionsShelfGroup}>
+            {promotionName ? (
+              <h2 className={cssHandles.promotionsShelfTitle}>
+                {promotionName}
+              </h2>
+            ) : null}
             <ProductList
-              key={idx}
               facets={facets}
               maxItems={maxItems}
               hideUnavailableItems={hideUnavailableItems}
               preferredSKU={preferredSKU}
             />
-          </>
+          </div>
         )
       })}
     </div>
