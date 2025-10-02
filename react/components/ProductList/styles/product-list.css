@@ -20,12 +20,15 @@
   gap: 1rem;
   overflow-x: auto;
   scroll-behavior: smooth;
-  height: 470px;
+  height: 30rem;
 }
 
 .productListEmptyState {
   color: #6b7280;
   font-size: 1rem;
+  margin: 0 auto;
+  max-width: 80rem;
+  width: 100%;
 }
 
 .productListContainer .productListArrowButton {
