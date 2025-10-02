@@ -26,6 +26,10 @@ const CSS_HANDLES = [
   'productListArrowRight',
   'productListEmptyState',
   'productListItem',
+  'productListContent',
+  'productListPagination',
+  'productListPaginationDot',
+  'productListPaginationDotActive',
 ] as const
 
 const ProductList = ({
@@ -36,7 +40,7 @@ const ProductList = ({
 }: ProductListProps) => {
   const { handles: cssHandles } = useCssHandles(CSS_HANDLES)
   const [currentPage, setCurrentPage] = useState(0)
-  const { isMobile } = useDevice()
+  const { isMobile, device } = useDevice()
 
   const selectedFacets = useMemo(
     () => getFacetFromPromotions(facets, facets.type),
@@ -66,9 +70,15 @@ const ProductList = ({
       .filter(Boolean) as NormalizedProductSummary[]
   }, [data, preferredSKU])
 
-  const quantityItems = isMobile ? allProducts.length : ITEMS_PER_PAGE
+  const quantityItems =
+    isMobile || device === 'tablet' ? allProducts.length : ITEMS_PER_PAGE
 
-  const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE)
+  const totalPages = Math.max(1, Math.ceil(allProducts.length / quantityItems))
+
+  const paginationPages = useMemo(
+    () => Array.from({ length: totalPages }, (_, index) => index),
+    [totalPages]
+  )
 
   const visibleProducts = useMemo(() => {
     const start = currentPage * quantityItems
@@ -104,43 +114,73 @@ const ProductList = ({
 
   return (
     <section
-      className={`relative flex flex-row items-center ${cssHandles.productListContainer}`}
+      className={`relative flex flex-col items-center ${cssHandles.productListContainer} ${cssHandles.productListSection}`}
     >
-      <div className={`${cssHandles.productListArrowButton}`}>
-        <button
-          onClick={handlePrev}
-          disabled={currentPage === 0}
-          aria-label="Produtos anteriores"
-          className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowLeft}`}
-        >
-          &#8592;
-        </button>
-      </div>
-
-      <div className={`${cssHandles.productListCarousel}`}>
-        {visibleProducts.map((product, index) => (
-          <div
-            className={cssHandles.productListItem}
-            key={product.cacheId ?? product.productId ?? index}
+      <div
+        className={`${cssHandles.productListContent} productListContent flex w-full flex-row items-center`}
+      >
+        <div className={`${cssHandles.productListArrowButton}`}>
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 0}
+            aria-label="Produtos anteriores"
+            className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowLeft}`}
           >
-            <ExtensionPoint
-              id="product-summary"
-              product={product}
-              listName="PromotionsShelf"
-            />
-          </div>
-        ))}
+            &#8592;
+          </button>
+        </div>
+
+        <div className={`${cssHandles.productListCarousel}`}>
+          {visibleProducts.map((product, index) => (
+            <div
+              className={cssHandles.productListItem}
+              key={product.cacheId ?? product.productId ?? index}
+            >
+              <ExtensionPoint
+                id="product-summary"
+                product={product}
+                listName="PromotionsShelf"
+              />
+            </div>
+          ))}
+        </div>
+        <div className={`${cssHandles.productListArrowButton}`}>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages - 1}
+            aria-label="Próximos produtos"
+            className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowRight}`}
+          >
+            &#8594;
+          </button>
+        </div>
       </div>
-      <div className={`${cssHandles.productListArrowButton}`}>
-        <button
-          onClick={handleNext}
-          disabled={currentPage === totalPages - 1}
-          aria-label="Próximos produtos"
-          className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowRight}`}
+      {totalPages > 1 ? (
+        <div
+          className={`${cssHandles.productListPagination} productListPagination`}
         >
-          &#8594;
-        </button>
-      </div>
+          {paginationPages.map((pageIndex) => {
+            const isActive = currentPage === pageIndex
+
+            return (
+              <button
+                key={`product-list-page-${pageIndex}`}
+                type="button"
+                onClick={() => setCurrentPage(pageIndex)}
+                aria-label={`Ir para página ${pageIndex + 1}`}
+                aria-current={isActive ? 'page' : undefined}
+                className={`${
+                  cssHandles.productListPaginationDot
+                } productListPaginationDot${
+                  isActive
+                    ? ` ${cssHandles.productListPaginationDotActive} productListPaginationDotActive`
+                    : ''
+                }`}
+              />
+            )
+          })}
+        </div>
+      ) : null}
     </section>
   )
 }

@@ -6,11 +6,11 @@
 }
 
 .promotionsShelfTitle {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
-  line-height: 1.75rem;
+  line-height: 3.75rem;
   margin: 0;
-  color: #111827;
+  color: #6b7280;
 }
 
 .promotionsShelfLoading {
@@ -28,7 +28,10 @@
   }
 
   .promotionsShelfTitle {
-    font-size: 1.75rem;
-    line-height: 2.25rem;
+    font-size: 2.5rem;
+    line-height: 3.25rem;
+    margin: 0 auto;
+    max-width: 80rem;
+    width: 100%;
   }
 }
