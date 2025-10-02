@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { Product } from 'vtex.product-context/react/ProductTypes'
 import { ProductTypes } from 'vtex.product-context'
@@ -29,9 +29,6 @@ const ProductList = ({
   preferredSKU,
 }: ProductListProps) => {
   const [currentPage, setCurrentPage] = useState(0)
-  const [visibleProducts, setVisibleProducts] = useState<
-    NormalizedProductSummary[]
-  >([])
 
   const selectedFacets = useMemo(
     () => getFacetFromPromotions(facets, facets.type),
@@ -52,22 +49,21 @@ const ProductList = ({
     const productsData: Product[] = data?.productSearch?.products ?? []
 
     return productsData
-      ?.map((product: Product) =>
+      .map((product: Product) =>
         mapCatalogProductToProductSummary(
           (product as unknown) as ProductTypes.Product,
           preferredSKU
         )
       )
-      .filter((summary) => Boolean(summary)) as NormalizedProductSummary[]
+      .filter(Boolean) as NormalizedProductSummary[]
   }, [data, preferredSKU])
 
   const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE)
 
-  useEffect(() => {
-    const startIndex = currentPage * ITEMS_PER_PAGE
-    const endIndex = startIndex + ITEMS_PER_PAGE
+  const visibleProducts = useMemo(() => {
+    const start = currentPage * ITEMS_PER_PAGE
 
-    setVisibleProducts(allProducts.slice(startIndex, endIndex))
+    return allProducts.slice(start, start + ITEMS_PER_PAGE)
   }, [currentPage, allProducts])
 
   const handlePrev = () => {
@@ -86,7 +82,7 @@ const ProductList = ({
     }
   }
 
-  if (!allProducts || loading || error || !allProducts.length) {
+  if (loading || error || !allProducts.length) {
     return (
       <div className="frn-shelf-promotions__empty">
         Nenhum produto encontrado
@@ -106,7 +102,7 @@ const ProductList = ({
       >
         &#8592;
       </button>
-      <div className={`${styles.productListCard}`}>
+      <div className={styles.productListCard}>
         {visibleProducts.map((product, index) => (
           <ExtensionPoint
             id="product-summary"
