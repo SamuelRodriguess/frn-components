@@ -33,6 +33,7 @@ export function promotionParser(promotions: PromotionList): IFacets[] {
       acc.push(
         ...promo.categories.map((elemcat) => ({
           type: 'category',
+          namepromo: promo.name,
           ...elemcat,
         }))
       )
@@ -42,6 +43,7 @@ export function promotionParser(promotions: PromotionList): IFacets[] {
       acc.push(
         ...promo.collections.map((elemcol) => ({
           type: 'collection',
+          namepromo: promo.name,
           ...elemcol,
         }))
       )
@@ -51,6 +53,7 @@ export function promotionParser(promotions: PromotionList): IFacets[] {
       acc.push(
         ...promo.skus.map((elemskus) => ({
           type: 'sku',
+          namepromo: promo.name,
           ...elemskus,
         }))
       )

@@ -26,5 +26,6 @@ declare module 'frn.promotions' {
     id: string
     name: string
     type: string
+    namepromo: string
   }
 }

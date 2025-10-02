@@ -47,7 +47,7 @@ const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
     <div id={id} className={`${cssHandles.promotionsShelf}`}>
       {allPromotions?.map((facets, idx) => {
         const promotionKey = facets?.id ?? facets?.name ?? idx
-        const promotionName = facets?.name ?? ''
+        const promotionName = facets?.namepromo ?? ''
 
         return (
           <div key={promotionKey} className={cssHandles.promotionsShelfGroup}>
