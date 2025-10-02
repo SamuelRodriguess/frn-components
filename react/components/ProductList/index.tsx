@@ -20,6 +20,7 @@ const CSS_HANDLES = [
   'productListSection',
   'productListContainer',
   'productListCarousel',
+  'productListarrowButtonBase',
   'productListArrowButton',
   'productListArrowLeft',
   'productListArrowRight',
@@ -105,12 +106,12 @@ const ProductList = ({
     <section
       className={`relative flex flex-row items-center ${cssHandles.productListContainer}`}
     >
-      <div className={`shadow-lg ${cssHandles.productListArrowButton}`}>
+      <div className={`${cssHandles.productListArrowButton}`}>
         <button
           onClick={handlePrev}
           disabled={currentPage === 0}
           aria-label="Produtos anteriores"
-          className={`${cssHandles.productListArrowLeft}`}
+          className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowLeft}`}
         >
           &#8592;
         </button>
@@ -130,12 +131,12 @@ const ProductList = ({
           </div>
         ))}
       </div>
-      <div className={`shadow-lg ${cssHandles.productListArrowButton}`}>
+      <div className={`${cssHandles.productListArrowButton}`}>
         <button
           onClick={handleNext}
           disabled={currentPage === totalPages - 1}
           aria-label="Próximos produtos"
-          className={`${cssHandles.productListArrowRight}`}
+          className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowRight}`}
         >
           &#8594;
         </button>

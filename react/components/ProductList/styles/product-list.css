@@ -6,11 +6,16 @@
   scroll-behavior: smooth;
 }
 
+.productListEmptyState {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
 .productListContainer .productListArrowButton {
   display: none;
 }
 
-.productListArrowButton:disabled {
+.productListArrowButton .productListarrowButtonBase:disabled {
   color: #9ca3af;
   cursor: not-allowed;
 }
@@ -25,11 +30,9 @@
   }
 
   .productListContainer .productListArrowButton {
-    height: 1.875rem;
-    width: 1.875rem;
-    border-radius: 50%;
-    background-color: whitesmoke;
     display: block;
+    height: 3rem;
+    width: 3rem;
   }
 
   .productListContainer .productListCarousel {
@@ -39,5 +42,14 @@
   .productListContainer .productListArrowButton .productListArrowLeft,
   .productListContainer .productListArrowButton .productListArrowRight {
     transform: translateY(-25%);
+    height: 3rem;
+    width: 3rem;
+    border-radius: 50%;
+    background-color: whitesmoke;
+    display: flex;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 }
