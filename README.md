@@ -1,4 +1,4 @@
-# FRN Promotions Components
+# FRN Promotion Components
 
 ## Overview
 
