@@ -1,26 +1,36 @@
-import React, { useMemo, useState } from 'react'
+import './styles/product-list.css'
+import React, { memo, useMemo, useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { Product } from 'vtex.product-context/react/ProductTypes'
 import { ProductTypes } from 'vtex.product-context'
 import { ExtensionPoint } from 'vtex.render-runtime'
-import { IFacets } from 'frn.promotions'
+import { useCssHandles } from 'vtex.css-handles'
+import { useDevice } from 'vtex.device-detector'
 
-import styles from './productList.module.css'
 import PromotionsShelfQuery from '../../graphql/PromotionsShelf.graphql'
 import {
   getFacetFromPromotions,
   mapCatalogProductToProductSummary,
   NormalizedProductSummary,
-  PreferenceType,
 } from '../../utils'
 import { ITEMS_PER_PAGE } from '../../consts/shelf'
+import { ProductListProps } from '../../typings/productList'
 
-interface ProductListProps {
-  facets: IFacets
-  maxItems: number
-  hideUnavailableItems?: boolean
-  preferredSKU: PreferenceType
-}
+const CSS_HANDLES = [
+  'productListSection',
+  'productListContainer',
+  'productListCarousel',
+  'productListarrowButtonBase',
+  'productListArrowButton',
+  'productListArrowLeft',
+  'productListArrowRight',
+  'productListEmptyState',
+  'productListItem',
+  'productListContent',
+  'productListPagination',
+  'productListPaginationDot',
+  'productListPaginationDotActive',
+] as const
 
 const ProductList = ({
   facets,
@@ -28,7 +38,9 @@ const ProductList = ({
   hideUnavailableItems,
   preferredSKU,
 }: ProductListProps) => {
+  const { handles: cssHandles } = useCssHandles(CSS_HANDLES)
   const [currentPage, setCurrentPage] = useState(0)
+  const { isMobile, device } = useDevice()
 
   const selectedFacets = useMemo(
     () => getFacetFromPromotions(facets, facets.type),
@@ -58,13 +70,21 @@ const ProductList = ({
       .filter(Boolean) as NormalizedProductSummary[]
   }, [data, preferredSKU])
 
-  const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE)
+  const quantityItems =
+    isMobile || device === 'tablet' ? allProducts.length : ITEMS_PER_PAGE
+
+  const totalPages = Math.max(1, Math.ceil(allProducts.length / quantityItems))
+
+  const paginationPages = useMemo(
+    () => Array.from({ length: totalPages }, (_, index) => index),
+    [totalPages]
+  )
 
   const visibleProducts = useMemo(() => {
-    const start = currentPage * ITEMS_PER_PAGE
+    const start = currentPage * quantityItems
 
-    return allProducts.slice(start, start + ITEMS_PER_PAGE)
-  }, [currentPage, allProducts])
+    return allProducts.slice(start, start + quantityItems)
+  }, [currentPage, quantityItems, allProducts])
 
   const handlePrev = () => {
     const isAfterFirstPage = currentPage > 0
@@ -84,7 +104,9 @@ const ProductList = ({
 
   if (loading || error || !allProducts.length) {
     return (
-      <div className="frn-shelf-promotions__empty">
+      <div
+        className={`${cssHandles.productListEmptyState} frn-shelf-promotions__empty`}
+      >
         Nenhum produto encontrado
       </div>
     )
@@ -92,36 +114,75 @@ const ProductList = ({
 
   return (
     <section
-      className={`relative flex flex-row items-center ${styles.productListSection}`}
+      className={`relative flex flex-col items-center ${cssHandles.productListContainer} ${cssHandles.productListSection}`}
     >
-      <button
-        onClick={handlePrev}
-        disabled={currentPage === 0}
-        aria-label="Produtos anteriores"
-        className={`${styles.arrowButtonBaseStyles} ${styles.productArrowLeft}`}
+      <div
+        className={`${cssHandles.productListContent} productListContent flex w-full flex-row items-center`}
       >
-        &#8592;
-      </button>
-      <div className={styles.productListCard}>
-        {visibleProducts.map((product, index) => (
-          <ExtensionPoint
-            id="product-summary"
-            key={product.cacheId ?? product.productId ?? index}
-            product={product}
-            listName="PromotionsShelf"
-          />
-        ))}
+        <div className={`${cssHandles.productListArrowButton}`}>
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 0}
+            aria-label="Produtos anteriores"
+            className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowLeft}`}
+          >
+            &#8592;
+          </button>
+        </div>
+
+        <div className={`${cssHandles.productListCarousel}`}>
+          {visibleProducts.map((product, index) => (
+            <div
+              className={cssHandles.productListItem}
+              key={product.cacheId ?? product.productId ?? index}
+            >
+              <ExtensionPoint
+                id="product-summary"
+                product={product}
+                listName="PromotionsShelf"
+              />
+            </div>
+          ))}
+        </div>
+        <div className={`${cssHandles.productListArrowButton}`}>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages - 1}
+            aria-label="Próximos produtos"
+            className={`${cssHandles.productListarrowButtonBase} ${cssHandles.productListArrowRight}`}
+          >
+            &#8594;
+          </button>
+        </div>
       </div>
-      <button
-        onClick={handleNext}
-        disabled={currentPage === totalPages - 1}
-        aria-label="Próximos produtos"
-        className={`${styles.arrowButtonBaseStyles} ${styles.productArrowRight}`}
-      >
-        &#8594;
-      </button>
+      {totalPages > 1 ? (
+        <div
+          className={`${cssHandles.productListPagination} productListPagination`}
+        >
+          {paginationPages.map((pageIndex) => {
+            const isActive = currentPage === pageIndex
+
+            return (
+              <button
+                key={`product-list-page-${pageIndex}`}
+                type="button"
+                onClick={() => setCurrentPage(pageIndex)}
+                aria-label={`Ir para página ${pageIndex + 1}`}
+                aria-current={isActive ? 'page' : undefined}
+                className={`${
+                  cssHandles.productListPaginationDot
+                } productListPaginationDot${
+                  isActive
+                    ? ` ${cssHandles.productListPaginationDotActive} productListPaginationDotActive`
+                    : ''
+                }`}
+              />
+            )
+          })}
+        </div>
+      ) : null}
     </section>
   )
 }
 
-export default ProductList
+export default memo(ProductList)

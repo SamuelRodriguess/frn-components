@@ -20,7 +20,9 @@
     "vtex.product-summary": "2.x",
     "vtex.product-summary-context": "0.x",
     "vtex.product-context": "0.x",
-    "vtex.store-resources": "0.x"
+    "vtex.store-resources": "0.x",
+    "vtex.css-handles": "1.x",
+    "vtex.device-detector": "0.x"
   },
   "registries": ["smartcheckout"],
   "policies": [],
