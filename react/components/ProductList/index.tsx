@@ -1,11 +1,10 @@
 import './styles/product-list.css'
-import React, { useMemo, useState } from 'react'
+import React, { memo, useMemo, useState } from 'react'
 import { useQuery } from 'react-apollo'
 import { Product } from 'vtex.product-context/react/ProductTypes'
 import { ProductTypes } from 'vtex.product-context'
 import { ExtensionPoint } from 'vtex.render-runtime'
 import { useCssHandles } from 'vtex.css-handles'
-import { IFacets } from 'frn.promotions'
 import { useDevice } from 'vtex.device-detector'
 
 import PromotionsShelfQuery from '../../graphql/PromotionsShelf.graphql'
@@ -13,9 +12,9 @@ import {
   getFacetFromPromotions,
   mapCatalogProductToProductSummary,
   NormalizedProductSummary,
-  PreferenceType,
 } from '../../utils'
 import { ITEMS_PER_PAGE } from '../../consts/shelf'
+import { ProductListProps } from '../../typings/productList'
 
 const CSS_HANDLES = [
   'productListSection',
@@ -27,13 +26,6 @@ const CSS_HANDLES = [
   'productListEmptyState',
   'productListItem',
 ] as const
-
-interface ProductListProps {
-  facets: IFacets
-  maxItems: number
-  hideUnavailableItems?: boolean
-  preferredSKU: PreferenceType
-}
 
 const ProductList = ({
   facets,
@@ -75,7 +67,7 @@ const ProductList = ({
 
   const quantityItems = isMobile ? allProducts.length : ITEMS_PER_PAGE
 
-  const totalPages = Math.ceil(allProducts.length / quantityItems)
+  const totalPages = Math.ceil(allProducts.length / ITEMS_PER_PAGE)
 
   const visibleProducts = useMemo(() => {
     const start = currentPage * quantityItems
@@ -152,4 +144,4 @@ const ProductList = ({
   )
 }
 
-export default ProductList
+export default memo(ProductList)

@@ -3,13 +3,14 @@ import React from 'react'
 import { useCssHandles } from 'vtex.css-handles'
 
 import { usePromotions } from '../../hooks/usePromotions'
-import { PreferenceType, promotionParser } from '../../utils'
+import { promotionParser } from '../../utils'
 import {
   DEFAULT_MAX_ITEMS,
   DEFAULT_PROMOTION_ID,
   SKU_INITIAL,
 } from '../../consts/shelf'
 import ProductList from '../ProductList'
+import { PromotionsShelfProps } from '../../typings/promotionsShelf'
 
 const CSS_HANDLES = [
   'promotionsShelf',
@@ -17,16 +18,6 @@ const CSS_HANDLES = [
   'promotionsShelfGroup',
   'promotionsShelfTitle',
 ] as const
-
-interface PromotionsShelfProps {
-  id?: string
-  categoryId?: string
-  sellerId?: string
-  maxItems?: number
-  hideUnavailableItems?: boolean
-  preferredSKU?: PreferenceType
-  promotionId?: string
-}
 
 const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
   id,
