@@ -1,5 +1,5 @@
 # FRN Promotion Components
-<img width="1389" height="614" alt="image" src="https://github.com/user-attachments/assets/94462db0-766c-4520-a4f6-497b3abdcb00" />
+<img width="1396" height="638" alt="image" src="https://github.com/user-attachments/assets/1b7e84dc-17e2-4a34-b2f0-f58c44b72f01" />
 
 ## Overview
 `frn-components` is a custom VTEX IO application, developed specifically for teams that need to operationalize promotions and automatically render shelves. Developed to run within the VTEX Store theme, it normalizes catalog data to remain compatible with product-summary and exposes a block.
