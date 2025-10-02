@@ -33,6 +33,9 @@ const PromotionsShelf: StorefrontFunctionComponent<PromotionsShelfProps> = ({
     error: promotionsError,
   } = usePromotions(promotionId)
 
+  // eslint-disable-next-line no-console
+  console.log('🚀 ~ PromotionsShelf ~ promotions:', promotions)
+
   const allPromotions = promotionParser(promotions)
 
   if (promotionsError || promotionsLoading || !allPromotions.length) {

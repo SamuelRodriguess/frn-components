@@ -21,7 +21,8 @@ const CSS_HANDLES = [
   'productListContainer',
   'productListCarousel',
   'productListarrowButtonBase',
-  'productListArrowButton',
+  'productListArrowButtonLeft',
+  'productListArrowButtonRight',
   'productListArrowLeft',
   'productListArrowRight',
   'productListEmptyState',
@@ -119,7 +120,7 @@ const ProductList = ({
       <div
         className={`${cssHandles.productListContent} productListContent flex w-full flex-row items-center`}
       >
-        <div className={`${cssHandles.productListArrowButton}`}>
+        <div className={`${cssHandles.productListArrowButtonLeft}`}>
           <button
             onClick={handlePrev}
             disabled={currentPage === 0}
@@ -144,7 +145,7 @@ const ProductList = ({
             </div>
           ))}
         </div>
-        <div className={`${cssHandles.productListArrowButton}`}>
+        <div className={`${cssHandles.productListArrowButtonRight}`}>
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages - 1}
