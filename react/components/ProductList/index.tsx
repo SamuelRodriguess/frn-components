@@ -15,6 +15,7 @@ import {
 } from '../../utils'
 import { ITEMS_PER_PAGE } from '../../consts/shelf'
 import { ProductListProps } from '../../typings/productList'
+import Bullets from '../Bullets'
 
 const CSS_HANDLES = [
   'productListSection',
@@ -28,9 +29,6 @@ const CSS_HANDLES = [
   'productListEmptyState',
   'productListItem',
   'productListContent',
-  'productListPagination',
-  'productListPaginationDot',
-  'productListPaginationDotActive',
 ] as const
 
 const ProductList = ({
@@ -75,11 +73,6 @@ const ProductList = ({
     isMobile || device === 'tablet' ? allProducts.length : ITEMS_PER_PAGE
 
   const totalPages = Math.max(1, Math.ceil(allProducts.length / quantityItems))
-
-  const paginationPages = useMemo(
-    () => Array.from({ length: totalPages }, (_, index) => index),
-    [totalPages]
-  )
 
   const visibleProducts = useMemo(() => {
     const start = currentPage * quantityItems
@@ -156,32 +149,12 @@ const ProductList = ({
           </button>
         </div>
       </div>
-      {totalPages > 1 ? (
-        <div
-          className={`${cssHandles.productListPagination} productListPagination`}
-        >
-          {paginationPages.map((pageIndex) => {
-            const isActive = currentPage === pageIndex
 
-            return (
-              <button
-                key={`product-list-page-${pageIndex}`}
-                type="button"
-                onClick={() => setCurrentPage(pageIndex)}
-                aria-label={`Ir para página ${pageIndex + 1}`}
-                aria-current={isActive ? 'page' : undefined}
-                className={`${
-                  cssHandles.productListPaginationDot
-                } productListPaginationDot${
-                  isActive
-                    ? ` ${cssHandles.productListPaginationDotActive} productListPaginationDotActive`
-                    : ''
-                }`}
-              />
-            )
-          })}
-        </div>
-      ) : null}
+      <Bullets
+        totalPages={totalPages}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
     </section>
   )
 }
