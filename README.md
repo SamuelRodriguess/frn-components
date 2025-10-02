@@ -1,12 +1,10 @@
 # FRN Promotion Components
 
 ## Overview
-
-`frn-components` is a custom VTEX IO app purpose-built for teams that need to operationalize promotions without rebuilding the storefront stack. Built to run inside VTEX Store Framework, the app bridges a proprietary promotions service with VTEX Search, normalizes catalogue data so it remains compatible with `product-summary`, and exposes a drop-in block ready for Store Framework themes.
-
+`frn-components` is a custom VTEX IO application, developed specifically for teams that need to operationalize promotions and automatically render shelves. Developed to run within the VTEX Store theme, it normalizes catalog data to remain compatible with product-summary and exposes a block.
 ## Highlights
 
-- **PromotionsShelf block** renders one carousel per promotion target (category, collection, or SKU) returned by `/_v/custom-promotions/`.
+- **Custom Promotions block** renders one carousel per promotion target (category, collection, or SKU) returned by `/_v/custom-promotions/`.
 - **Product normalization** mirrors VTEX's internal `product-summary` mapper to ensure SKU selection, seller picking, and image resizing behave exactly as in first-party shelves.
 - **Pagination-first UX** keeps page weight low by querying VTEX Search with server-side paging and slicing items into 5-slot carousels with accessible navigation buttons.
 - **Configurable SKU strategy** lets merchandisers decide how the default SKU is chosen: first or last available, lowest price, or highest price.
@@ -26,7 +24,8 @@
    - Lint: `yarn lint`
    - Unit tests: `yarn test`
    - Locale equality check: `yarn lint:locales`
-3. Link to a development workspace with `vtex link` and watch for console output from the custom promotions service. Remember that this app depends on the `frn.promotions` service to answer `/_v/custom-promotions/`.
+3. Link to a development workspace with `vtex use {ws}` and `vtex link`
+4. Remember that this app depends on the `frn-promotions-service` service to answer `/_v/custom-promotions/`.
 
 ## Storefront Usage
 
@@ -71,10 +70,9 @@
 
 ## Data Flow
 
-1. `usePromotions` calls `/_v/custom-promotions/` (optionally filtered by `promotionId`) and receives targets typed by `frn.promotions` (`categories`, `collections`, `skus`).
+1. `usePromotions` calls `/_v/custom-promotions/` (optionally filtered by `promotionId`) and receives data (`categories`, `collections`, `skus`...).
 2. `promotionParser` converts targets into `IFacets` so they can be sent as `selectedFacets` to VTEX `productSearch`.
 3. `ProductList` requests VTEX Search through `PromotionsShelf.graphql`, normalizes items, and passes them to `product-summary` via the `ExtensionPoint` API.
-4. Pagination controls operate purely on the client by slicing the cached result set.
 
 ## Styling and Customization
 
@@ -92,4 +90,3 @@
 
 - Update `manifest.json` version (SemVer) and document changes in `CHANGELOG.md`.
 - Run `vtex validate` and `vtex deploy` targeting the desired workspace/account.
-- Announce consumer-facing changes in the Store Discussion thread or your internal channel so downstream teams can align their storefront templates.
